@@ -1,0 +1,4 @@
+pyttsx3
+pyserial
+SpeechRecognition
+openai-whisper
