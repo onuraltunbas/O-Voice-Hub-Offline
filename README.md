@@ -43,3 +43,13 @@ python3 -c 'import whisper; print("Model indiriliyor, lutfen bekleyin..."); whis
 ```bash
 python3 main.py
 ```
+## 📄 License
+
+This project is licensed under a **Non-Commercial License**.
+
+You may use, modify, and share this project for **personal, educational, and non-commercial purposes only**.
+
+🚫 **Commercial use is strictly prohibited** without prior written permission from the author.
+
+For commercial licensing inquiries, please contact the author.
+See the LICENSE file for full details.
