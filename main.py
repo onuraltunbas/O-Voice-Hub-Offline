@@ -21,7 +21,7 @@ engine.setProperty('rate', 140)
 
 # --- ARDUINO BAĞLANTISI ---
 try:
-    arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+    arduino = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     time.sleep(2) 
     print("Arduino bağlantısı başarılı!")
 except Exception as e:
