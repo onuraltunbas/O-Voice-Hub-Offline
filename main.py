@@ -29,14 +29,14 @@ except Exception as e:
     print("Arduino bulunamadı, donanım kontrolleri devre dışı bırakıldı.")
 
 def konus(metin):
-    print("Jarvis:", metin)
+    print("Asistan:", metin)
     engine.say(metin)
     engine.runAndWait()
 
 def dinle():
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        print("\n🎙️ Seni dinliyorum Onur (TR/EN)...")
+        print("\n🎙️ Seni dinliyorum (TR/EN)...")
         r.adjust_for_ambient_noise(source, duration=0.5) 
         try:
             audio = r.listen(source, timeout=5, phrase_time_limit=5) 
@@ -88,7 +88,7 @@ def cevapla(komut, komutlar):
 
     return ""
 
-def jarvis_calistir():
+def asistan_calistir():
     if os.path.exists('komutlar.json'):
         with open('komutlar.json', 'r', encoding='utf-8') as f:
             komutlar = json.load(f)
@@ -117,4 +117,4 @@ def jarvis_calistir():
             break
 
 if __name__ == "__main__":
-    jarvis_calistir()
+    asistan_calistir()
