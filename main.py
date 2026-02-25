@@ -13,8 +13,8 @@ import warnings
 from datetime import datetime
 from ctypes import *
 
-# --- ALSA (LINUX SES) UYARILARINI GİZLEME SİHRİ ---
-# Bu kısım Ubuntu'nun mikrofon açılırken fırlattığı o çirkin logları tamamen susturur.
+# --- ALSA (LINUX SES) UYARILARINI GİZLEME ---
+
 try:
     ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
     def py_error_handler(filename, line, function, err, fmt):
@@ -37,28 +37,28 @@ engine.setProperty('rate', 140)
 try:
     arduino = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     time.sleep(2) 
-    print("Arduino bağlantısı başarılı!")
+    print("Arduino connection successful!")
 except Exception as e:
     arduino = None
-    print("Arduino bulunamadı, donanım kontrolleri devre dışı bırakıldı.")
+    print("Arduino not found, hardware controls are disabled.")
 
 def konus(metin):
-    print("Asistan:", metin)
+    print("Assistant:", metin)
     engine.say(metin)
     engine.runAndWait()
 
 def dinle():
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        print("\n🎙️ Seni dinliyorum (TR/EN)...")
+        print("\n🎙️ Listening to you...")
         r.adjust_for_ambient_noise(source, duration=0.5) 
         try:
             audio = r.listen(source, timeout=5, phrase_time_limit=5) 
-            print("Ses işleniyor... (İnternetsiz Mod)")
+            print("Processing audio...")
             
             metin = r.recognize_whisper(audio, model="base")
             
-            print(f"Sen söyledin: {metin}")
+            print(f"You said: {metin}")
             return metin.lower().strip()
             
         except sr.WaitTimeoutError:
@@ -66,7 +66,7 @@ def dinle():
         except sr.UnknownValueError:
             return ""
         except Exception as e:
-            print(f"Ses algılama hatası: {e}")
+            print(f"Audio recognition error: {e}")
             return ""
 
 def cevapla(komut, komutlar):
@@ -79,28 +79,27 @@ def cevapla(komut, komutlar):
                 # Arduino Komutları
                 if kategori == "led_1_ac":
                     if arduino: arduino.write(b'1')
-                    else: return "Donanım bağlantısı yok."
+                    else: return "No hardware connection."
                 elif kategori == "led_1_kapat":
                     if arduino: arduino.write(b'2')
-                    else: return "Donanım bağlantısı yok."
+                    else: return "No hardware connection."
                 elif kategori == "led_2_ac":
                     if arduino: arduino.write(b'3')
-                    else: return "Donanım bağlantısı yok."
+                    else: return "No hardware connection."
                 elif kategori == "led_2_kapat":
                     if arduino: arduino.write(b'4')
-                    else: return "Donanım bağlantısı yok."
+                    else: return "No hardware connection."
                 elif kategori == "led_3_ac":
                     if arduino: arduino.write(b'5')
-                    else: return "Donanım bağlantısı yok."
+                    else: return "No hardware connection."
                 elif kategori == "led_3_kapat":
                     if arduino: arduino.write(b'6')
-                    else: return "Donanım bağlantısı yok."
+                    else: return "No hardware connection."
 
                 
                 cevap = random.choice(veri["cevap"]) if isinstance(veri["cevap"], list) else veri["cevap"]
                 
-                # --- SAAT VE TARİH HESAPLAMA (Eksik Olan Kısım Eklendi) ---
-                # Metindeki {saat} ve {tarih} kısımlarını o anki bilgisayar saatiyle değiştirir
+                # --- SAAT VE TARİH HESAPLAMA ---
                 cevap = cevap.replace("{saat}", datetime.now().strftime("%H:%M"))
                 cevap = cevap.replace("{tarih}", datetime.now().strftime("%d %B %Y"))
                 
@@ -115,7 +114,7 @@ def asistan_calistir():
     else:
         komutlar = {}
 
-    konus("Sistemler çevrimdışı modda aktif. Systems are online and offline mode activated.")
+    konus("Systems are online and offline mode is activated.")
 
     while True:
         try:
@@ -125,14 +124,14 @@ def asistan_calistir():
                 continue 
             
             if any(x in komut for x in ["kapat", "görüşürüz", "shut down", "goodbye", "exit"]):
-                konus("Görüşürüz, sistemleri kapatıyorum. Shutting down.")
+                konus("Goodbye, shutting down systems.")
                 break
             
             yanit = cevapla(komut, komutlar)
             if yanit: 
                 konus(yanit)
             else:
-                konus("Söylediğini duydum Onur, ancak bu komutun karşılığını sistemimde bulamadım.")
+                konus("I heard you Onur, but I couldn't find a matching command in my system.")
                 
         except KeyboardInterrupt:
             break

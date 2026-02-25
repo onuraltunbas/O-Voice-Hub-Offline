@@ -1,7 +1,7 @@
 {
     "selam": {
       "anahtarlar": ["hello", "hi", "hey", "greetings"],
-      "cevap": ["Hello, systems are active.", "Hello! Systems are online."]
+      "cevap": ["Hello. How can I assist you?", "Hi there! What can I do for you?", "Hey! Need any help?"]
     },
     "zaman": {
       "anahtarlar": ["time", "what time is it", "current time", "what is the time"],
