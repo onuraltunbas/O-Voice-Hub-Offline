@@ -10,7 +10,20 @@ import serial
 import time
 import speech_recognition as sr
 import warnings
+from datetime import datetime
+from ctypes import *
 
+# --- ALSA (LINUX SES) UYARILARINI GİZLEME SİHRİ ---
+# Bu kısım Ubuntu'nun mikrofon açılırken fırlattığı o çirkin logları tamamen susturur.
+try:
+    ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
+    def py_error_handler(filename, line, function, err, fmt):
+        pass
+    c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
+    asound = cdll.LoadLibrary('libasound.so.2')
+    asound.snd_lib_error_set_handler(c_error_handler)
+except:
+    pass
 
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -18,6 +31,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 # --- ÇEVRİMDİŞİ SES MOTORUNU BAŞLAT ---
 engine = pyttsx3.init()
 engine.setProperty('rate', 140) 
+
 
 # --- ARDUINO BAĞLANTISI ---
 try:
@@ -84,6 +98,12 @@ def cevapla(komut, komutlar):
 
                 
                 cevap = random.choice(veri["cevap"]) if isinstance(veri["cevap"], list) else veri["cevap"]
+                
+                # --- SAAT VE TARİH HESAPLAMA (Eksik Olan Kısım Eklendi) ---
+                # Metindeki {saat} ve {tarih} kısımlarını o anki bilgisayar saatiyle değiştirir
+                cevap = cevap.replace("{saat}", datetime.now().strftime("%H:%M"))
+                cevap = cevap.replace("{tarih}", datetime.now().strftime("%d %B %Y"))
+                
                 return cevap
 
     return ""
@@ -104,7 +124,6 @@ def asistan_calistir():
             if not komut: 
                 continue 
             
-            
             if any(x in komut for x in ["kapat", "görüşürüz", "shut down", "goodbye", "exit"]):
                 konus("Görüşürüz, sistemleri kapatıyorum. Shutting down.")
                 break
@@ -112,6 +131,8 @@ def asistan_calistir():
             yanit = cevapla(komut, komutlar)
             if yanit: 
                 konus(yanit)
+            else:
+                konus("Söylediğini duydum Onur, ancak bu komutun karşılığını sistemimde bulamadım.")
                 
         except KeyboardInterrupt:
             break
