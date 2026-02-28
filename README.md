@@ -1,17 +1,18 @@
-# O-Voice-Hub-Offline — Çevrimdışı Sesli Kontrol & Otomasyon Asistanı
+# O-Voice-Hub-Offline — Çevrimdışı Yapay Zeka & Donanım Asistanı
 
 Bu proje, Ubuntu ve Linux tabanlı sistemler üzerinde çalışmak üzere tasarlanmış, **tamamen çevrimdışı (offline)** çalışan ve fiziksel donanımları kontrol edebilen bir yapay zeka sesli asistanıdır.
 
-Bulut tabanlı standart asistanların aksine, ses verilerinizi hiçbir uzak sunucuya göndermez; tüm dinleme, anlama ve konuşma süreçlerini bilgisayarınızın yerel donanım gücünü kullanarak gerçekleştirir. Asistanın ses işleme motoru olarak OpenAI'ın *Whisper* modeli, donanım kontrolcüsü olarak ise seri port üzerinden haberleştiği bir *Arduino* kullanılmıştır.
+Bulut tabanlı standart asistanların aksine, ses verilerinizi hiçbir uzak sunucuya göndermez; tüm dinleme, anlama ve konuşma süreçlerini bilgisayarınızın yerel donanım gücünü kullanarak gerçekleştirir. Asistanın ses tanıma motoru olarak OpenAI'ın *Whisper* modeli, ses sentezi motoru olarak ise yerel olarak çalışan *Coqui XTTS v2* ses klonlama modeli kullanılmıştır. Donanım kontrolcüsü olarak seri port üzerinden haberleşilen bir *Arduino* kullanılmıştır.
 
 ---
 
 ## 🌟 Özellikler
 
 * **Tamamen İnternetsiz Çalışma:** Kurulum aşamasından sonra hiçbir Wi-Fi veya ağ bağlantısına ihtiyaç duymaz.
-* **Çift Dilli (Bilingual) Ses Tanıma:** Hem Türkçe hem de İngilizceyi otomatik olarak algılar.
-* **Fiziksel Donanım Kontrolü (Arduino Entegrasyonu):** USB üzerinden Arduino'ya sinyaller göndererek röleleri, aydınlatma sistemlerini veya motorları kontrol eder.
-* **Sesli Geri Bildirim:** `pyttsx3` aracılığıyla kullanıcıya sesli durum bildirimi yapar.
+* **Ses Klonlama (XTTS v2):** Coqui XTTS v2 modeliyle `benim_sesim.wav` referans dosyasından klonlanan sesle konuşur; GPU varsa otomatik olarak CUDA üzerinde çalışır.
+* **Wake Word Sistemi:** Yalnızca `"Hey Car"` komutuyla aktive olur, sürekli dinlemez.
+* **İngilizce Ses Tanıma:** Whisper modeli (`base`) İngilizce komutları algılar.
+* **Fiziksel Donanım Kontrolü (Arduino Entegrasyonu):** USB üzerinden Arduino'ya sinyaller göndererek 3 ayrı LED'i (sol sinyal, farlar, sağ sinyal) bağımsız olarak kontrol eder.
 * **Dinamik Komut Yönetimi:** `komutlar.json` dosyasını düzenleyerek sınırsız yeni komut eklenebilir.
 
 ---
@@ -22,7 +23,7 @@ Bulut tabanlı standart asistanların aksine, ses verilerinizi hiçbir uzak sunu
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt-get install portaudio19-dev python3-pyaudio espeak ffmpeg -y
+sudo apt-get install portaudio19-dev python3-pyaudio ffmpeg -y
 ```
 
 ### 2. Python Kütüphanelerini Yükleme
@@ -31,10 +32,37 @@ sudo apt-get install portaudio19-dev python3-pyaudio espeak ffmpeg -y
 pip install -r requirements.txt
 ```
 
-### 3. Donanım Bağlantısı (Arduino)
+### 3. XTTS v2 Modelini İndirme
+
+Aşağıdaki betiği çalıştırarak model dosyalarını proje dizinindeki `xtts_v2_local` klasörüne indirin. Bu işlem internet hızına bağlı olarak birkaç dakika sürebilir ve yalnızca bir kez yapılması yeterlidir:
+
+```python
+from huggingface_hub import snapshot_download
+
+print("Model dosyaları 'xtts_v2_local' klasörüne indiriliyor. Bu işlem internet hızına bağlı olarak birkaç dakika sürebilir...")
+
+snapshot_download(
+    repo_id="coqui/XTTS-v2",
+    local_dir="xtts_v2_local",
+    local_dir_use_symlinks=False
+)
+
+print("İndirme tamamlandı!")
+```
+
+> **Not:** İndirme tamamlandıktan sonra sistem tamamen çevrimdışı çalışır. İndirme işlemi için tek seferlik internet bağlantısı gerekmektedir.
+
+### 4. Ses Klonu Oluşturma
+
+XTTS v2, konuşma sesi için bir referans dosyasına ihtiyaç duyar. Proje dizinine `benim_sesim.wav` adında en az 6-10 saniyelik, net ve gürültüsüz bir ses kaydı yerleştirin.
+
+### 5. Donanım Bağlantısı (Arduino)
 
 1. `main.ino` dosyasını Arduino IDE ile kartınıza yükleyin.
-2. Kontrol etmek istediğiniz donanımı (röle, LED vb.) ilgili pinlere bağlayın.
+2. LED'lerinizi şu pinlere bağlayın:
+   - **LED 1 (Sol Sinyal):** Pin 11
+   - **LED 2 (Farlar):** Pin 12
+   - **LED 3 (Sağ Sinyal):** Pin 13
 3. Arduino port iznini aşağıdaki komutla ayarlayın:
 
 ```bash
@@ -43,16 +71,10 @@ sudo usermod -a -G dialout $USER
 
 > **Not:** Bu komutu çalıştırdıktan sonra iznin sisteminize tam olarak işlemesi için bilgisayarınızı yeniden başlatmanız gerekmektedir.
 
-4. `komutlar.json` dosyasındaki `ARDUINO_PORT` değerini kendi Arduino portunuza göre güncelleyin.
+4. `main.py` dosyasındaki `ARDUINO_PORT` değerini kendi Arduino portunuza göre güncelleyin.
    - Linux: `/dev/ttyUSB0` veya `/dev/ttyACM0`
 
-### 4. Whisper Yapay Zeka Modelini İndirme
-
-```bash
-python3 -c 'import whisper; print("Model indiriliyor, lutfen bekleyin..."); whisper.load_model("base"); print("Indirme tamamlandi, sistem tamamen cevrimdisi calismaya hazir.")'
-```
-
-### 5. Asistanı Çalıştırma
+### 6. Asistanı Çalıştırma
 
 ```bash
 python3 main.py
@@ -62,15 +84,18 @@ python3 main.py
 
 ## 🎙️ Örnek Komutlar
 
-Sistem çalıştıktan sonra mikrofonunuzdan şu tarz komutlar verebilirsiniz:
+Sistem çalıştıktan sonra önce **"Hey Car"** diyerek asistanı aktive edin, ardından komutunuzu verin:
 
 | Komut | Açıklama |
 |---|---|
-| "Işıkları aç" / "Işıkları kapat" | Aydınlatma rölesini kontrol eder |
-| "Motoru çalıştır" / "Motoru durdur" | Motor kontrolü yapar |
-| "Sistemleri kapat" | Programdan güvenli çıkış yapar |
+| "Hey Car, turn on the lights" | Far LED'ini (Pin 12) açar |
+| "Hey Car, turn off the lights" | Far LED'ini (Pin 12) kapatır |
+| "Hey Car, left signal" | Sol sinyal LED'ini (Pin 11) kontrol eder |
+| "Hey Car, right signal" | Sağ sinyal LED'ini (Pin 13) kontrol eder |
+| "Hey Car, shut down" / "goodbye" / "exit" | Programdan güvenli çıkış yapar |
+| *(komutlar.json ile özelleştirilebilir)* | Sınırsız yeni İngilizce komut eklenebilir |
 
-
+> **Not:** Tüm komut anahtar kelimeleri ve sistem yanıtları `komutlar.json` dosyasından yönetilmektedir.
 
 ---
 
@@ -79,7 +104,9 @@ Sistem çalıştıktan sonra mikrofonunuzdan şu tarz komutlar verebilirsiniz:
 ```
 ├── main.py            # Ana Python asistan uygulaması
 ├── komutlar.json      # Sesli komut anahtarları ve sistem cevapları
-├── main.ino           # Arduino donanım kontrol kodları
+├── main.ino           # Arduino LED kontrol kodları
+├── benim_sesim.wav    # XTTS v2 için ses klonu referans dosyası
+├── xtts_v2_local/     # İndirilen Coqui XTTS v2 model dosyaları
 └── requirements.txt   # Gerekli Python kütüphaneleri listesi
 ```
 
