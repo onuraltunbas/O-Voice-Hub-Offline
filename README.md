@@ -88,12 +88,16 @@ Sistem çalıştıktan sonra önce **"Hey Car"** diyerek asistanı aktive edin, 
 
 | Komut | Açıklama |
 |---|---|
-| "Hey Car, turn on the lights" | Far LED'ini (Pin 12) açar |
-| "Hey Car, turn off the lights" | Far LED'ini (Pin 12) kapatır |
-| "Hey Car, left signal" | Sol sinyal LED'ini (Pin 11) kontrol eder |
-| "Hey Car, right signal" | Sağ sinyal LED'ini (Pin 13) kontrol eder |
+| "Hey Car, hello" / "hi" / "greetings" | Asistanı selamlar |
+| "Hey Car, what time is it?" | Güncel saati sesli bildirir |
+| "Hey Car, what is today?" | Güncel tarihi sesli bildirir |
+| "Hey Car, turn on headlights" / "headlights on" | Far LED'ini (Pin 12) açar |
+| "Hey Car, turn off headlights" / "headlights off" | Far LED'ini (Pin 12) kapatır |
+| "Hey Car, turn on left blinker" / "left blinker on" | Sol sinyal LED'ini (Pin 11) açar |
+| "Hey Car, turn off left blinker" / "left blinker off" | Sol sinyal LED'ini (Pin 11) kapatır |
+| "Hey Car, turn on right blinker" / "right blinker on" | Sağ sinyal LED'ini (Pin 13) açar |
+| "Hey Car, turn off right blinker" / "right blinker off" | Sağ sinyal LED'ini (Pin 13) kapatır |
 | "Hey Car, shut down" / "goodbye" / "exit" | Programdan güvenli çıkış yapar |
-| *(komutlar.json ile özelleştirilebilir)* | Sınırsız yeni İngilizce komut eklenebilir |
 
 > **Not:** Tüm komut anahtar kelimeleri ve sistem yanıtları `komutlar.json` dosyasından yönetilmektedir.
 
