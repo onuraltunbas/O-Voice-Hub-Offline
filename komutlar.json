@@ -34,5 +34,9 @@
     "led_3_kapat": {
       "anahtarlar": ["turn off right blinker", "right blinker off"],
       "cevap": ["Right blinker deactivated.", "Right blinker is off."]
+    },
+    "gösteri": {
+      "anahtarlar": ["make fun"],
+      "cevap": ["I'm making fun of you!"]
     }
 }

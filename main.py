@@ -138,6 +138,9 @@ def cevapla(komut, komutlar):
                 elif kategori == "led_3_kapat":
                     if arduino: arduino.write(b'6')
                     else: return "No hardware connection."
+                elif kategori == "gösteri":
+                    if arduino: arduino.write(b'7')
+                    else: return "No hardware connection."
 
                 
                 cevap = random.choice(veri["cevap"]) if isinstance(veri["cevap"], list) else veri["cevap"]

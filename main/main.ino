@@ -34,5 +34,25 @@ void loop() {
     // LED 3 Kontrolü (5 açar, 6 kapatır)
     else if (komut == '5') { digitalWrite(led3Pin, HIGH); } 
     else if (komut == '6') { digitalWrite(led3Pin, LOW); }
+
+    else if (komut == '7') { 
+      digitalWrite(led3Pin, HIGH); 
+      digitalWrite(led2Pin, HIGH);
+      digitalWrite(led1Pin, HIGH);
+      delay(1000);
+      digitalWrite(led3Pin, LOW); 
+      digitalWrite(led2Pin, LOW);
+      digitalWrite(led1Pin, LOW);
+      delay(1000);
+      digitalWrite(led3Pin, HIGH); 
+      digitalWrite(led2Pin, HIGH);
+      digitalWrite(led1Pin, HIGH);
+      delay(1000);
+      digitalWrite(led3Pin, LOW); 
+      digitalWrite(led2Pin, LOW);
+      digitalWrite(led1Pin, LOW);
+      
+    } 
+    
   }
 }
