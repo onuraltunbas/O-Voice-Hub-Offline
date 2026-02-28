@@ -1,6 +1,6 @@
 {
     "selam": {
-      "anahtarlar": ["hello", "hi", "hey", "greetings"],
+      "anahtarlar": ["hello", "hi", "greetings"],
       "cevap": ["Hello. How can I assist you?", "Hi there! What can I do for you?", "Hey! Need any help?"]
     },
     "zaman": {

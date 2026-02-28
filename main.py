@@ -165,6 +165,9 @@ def asistan_calistir():
             
             if not komut: 
                 continue 
+
+            if "hey car" not in komut:
+                continue
             
             if any(x in komut for x in ["shut down", "goodbye", "exit"]):
                 konus("Goodbye, shutting down systems.")
@@ -173,8 +176,6 @@ def asistan_calistir():
             yanit = cevapla(komut, komutlar)
             if yanit: 
                 konus(yanit)
-            else:
-                konus("I heard you, but I couldn't find a matching command in my system.")
                 
         except KeyboardInterrupt:
             break
