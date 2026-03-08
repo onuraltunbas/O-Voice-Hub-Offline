@@ -27,7 +27,7 @@ sudo apt install portaudio19-dev python3-pyaudio ffmpeg -y
 ### 2. Python kütüphaneleri
 
 ```bash
-pip install coqui-tts SpeechRecognition sounddevice pygame pyserial python-dotenv
+pip install coqui-tts SpeechRecognition sounddevice pygame pyserial
 pip install openai-whisper
 ```
 
