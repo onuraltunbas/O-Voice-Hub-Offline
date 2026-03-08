@@ -102,7 +102,7 @@ Yeni komut eklemek için `komutlar.json` dosyasını düzenle.
 
 ```
 ├── main.py            # Ana uygulama
-├── main.ino           # Arduino LED kontrol kodu
+├── main/main.ino      # Arduino LED kontrol kodu
 ├── komutlar.json      # Komut tanımları ve yanıtlar
 ├── download_model.py  # XTTS v2 model indirme betiği
 ├── requirements.txt   # Python bağımlılıkları
