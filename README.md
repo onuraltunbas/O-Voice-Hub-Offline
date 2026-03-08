@@ -1,80 +1,81 @@
-# O-Voice-Hub-Offline — Çevrimdışı Yapay Zeka & Donanım Asistanı
+# O-Voice-Hub-Offline
 
-Bu proje, Ubuntu ve Linux tabanlı sistemler üzerinde çalışmak üzere tasarlanmış, **tamamen çevrimdışı (offline)** çalışan ve fiziksel donanımları kontrol edebilen bir yapay zeka sesli asistanıdır.
+Tamamen çevrimdışı çalışan, ses klonlama ve Arduino donanım kontrolü destekli yapay zeka sesli asistan.
 
-Bulut tabanlı standart asistanların aksine, ses verilerinizi hiçbir uzak sunucuya göndermez; tüm dinleme, anlama ve konuşma süreçlerini bilgisayarınızın yerel donanım gücünü kullanarak gerçekleştirir. Asistanın ses tanıma motoru olarak OpenAI'ın *Whisper* modeli, ses sentezi motoru olarak ise yerel olarak çalışan *Coqui XTTS v2* ses klonlama modeli kullanılmıştır. Donanım kontrolcüsü olarak seri port üzerinden haberleşilen bir *Arduino* kullanılmıştır.
-
----
-
-## 🌟 Özellikler
-
-* **Tamamen İnternetsiz Çalışma:** Kurulum aşamasından sonra hiçbir Wi-Fi veya ağ bağlantısına ihtiyaç duymaz.
-* **Ses Klonlama (XTTS v2):** Coqui XTTS v2 modeliyle `benim_sesim.wav` referans dosyasından klonlanan sesle konuşur; GPU varsa otomatik olarak CUDA üzerinde çalışır.
-* **Wake Word Sistemi:** Yalnızca `"Hey Car"` komutuyla aktive olur, sürekli dinlemez.
-* **İngilizce Ses Tanıma:** Whisper modeli (`base`) İngilizce komutları algılar.
-* **Fiziksel Donanım Kontrolü (Arduino Entegrasyonu):** USB üzerinden Arduino'ya sinyaller göndererek 3 ayrı LED'i (sol sinyal, farlar, sağ sinyal) bağımsız olarak kontrol eder.
-* **Dinamik Komut Yönetimi:** `komutlar.json` dosyasını düzenleyerek sınırsız yeni komut eklenebilir.
+**Ses Tanıma:** OpenAI Whisper (base) — **TTS:** Coqui XTTS v2 — **Donanım:** Arduino (Seri Port)
 
 ---
 
-## ⚙️ Kurulum
+## Gereksinimler
 
-### 1. Sistemi Güncelleme ve Gereksinimleri Yükleme
+- Ubuntu / Debian tabanlı Linux
+- Python 3.10+
+- Arduino (isteğe bağlı)
+- GPU önerilir (CPU ile de çalışır)
+
+---
+
+## Kurulum
+
+### 1. Sistem bağımlılıkları
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt-get install portaudio19-dev python3-pyaudio ffmpeg -y
+sudo apt install portaudio19-dev python3-pyaudio ffmpeg -y
 ```
 
-### 2. Python Kütüphanelerini Yükleme
+### 2. Python kütüphaneleri
 
 ```bash
-pip install -r requirements.txt
+pip install coqui-tts SpeechRecognition sounddevice pygame pyserial python-dotenv
+pip install openai-whisper
 ```
 
-### 3. XTTS v2 Modelini İndirme
+### 3. XTTS v2 modelini indir
 
-Aşağıdaki betiği çalıştırarak model dosyalarını proje dizinindeki `xtts_v2_local` klasörüne indirin. Bu işlem internet hızına bağlı olarak birkaç dakika sürebilir ve yalnızca bir kez yapılması yeterlidir:
+Aşağıdaki betiği bir kez çalıştır (internet bağlantısı gerekir, ~2GB):
 
 ```python
 from huggingface_hub import snapshot_download
-
-print("Model dosyaları 'xtts_v2_local' klasörüne indiriliyor. Bu işlem internet hızına bağlı olarak birkaç dakika sürebilir...")
-
 snapshot_download(
     repo_id="coqui/XTTS-v2",
     local_dir="xtts_v2_local",
     local_dir_use_symlinks=False
 )
-
-print("İndirme tamamlandı!")
 ```
 
-> **Not:** İndirme tamamlandıktan sonra sistem tamamen çevrimdışı çalışır. İndirme işlemi için tek seferlik internet bağlantısı gerekmektedir.
+> İndirme tamamlandıktan sonra sistem tamamen çevrimdışı çalışır.
 
-### 4. Ses Klonu Oluşturma
+### 4. Ses klonu referans dosyası
 
-XTTS v2, konuşma sesi için bir referans dosyasına ihtiyaç duyar. Proje dizinine `benim_sesim.wav` adında en az 6-10 saniyelik, net ve gürültüsüz bir ses kaydı yerleştirin.
+Proje dizinine `benim_sesim.wav` adında **en az 6–10 saniyelik**, net ve gürültüsüz bir ses kaydı koy.
 
-### 5. Donanım Bağlantısı (Arduino)
+### 5. Arduino kurulumu (isteğe bağlı)
 
-1. `main.ino` dosyasını Arduino IDE ile kartınıza yükleyin.
-2. LED'lerinizi şu pinlere bağlayın:
-   - **LED 1 (Sol Sinyal):** Pin 11
-   - **LED 2 (Farlar):** Pin 12
-   - **LED 3 (Sağ Sinyal):** Pin 13
-3. Arduino port iznini aşağıdaki komutla ayarlayın:
+1. `main.ino` dosyasını Arduino IDE ile kartına yükle.
+2. LED bağlantıları:
+
+   | LED | Pin |
+   |-----|-----|
+   | Sol Sinyal | 11 |
+   | Farlar | 12 |
+   | Sağ Sinyal | 13 |
+
+3. Port iznini ver:
 
 ```bash
 sudo usermod -a -G dialout $USER
+# Ardından bilgisayarı yeniden başlat
 ```
 
-> **Not:** Bu komutu çalıştırdıktan sonra iznin sisteminize tam olarak işlemesi için bilgisayarınızı yeniden başlatmanız gerekmektedir.
+4. `main.py` içindeki `ARDUINO_PORT` değerini kendi portuna göre güncelle:
+   - `/dev/ttyUSB0` veya `/dev/ttyACM0`
 
-4. `main.py` dosyasındaki `ARDUINO_PORT` değerini kendi Arduino portunuza göre güncelleyin.
-   - Linux: `/dev/ttyUSB0` veya `/dev/ttyACM0`
+> Arduino bağlı değilse sistem yine çalışır; donanım komutları devre dışı kalır.
 
-### 6. Asistanı Çalıştırma
+---
+
+## Çalıştırma
 
 ```bash
 python3 main.py
@@ -82,47 +83,41 @@ python3 main.py
 
 ---
 
-## 🎙️ Örnek Komutlar
+## Kullanım
 
-Sistem çalıştıktan sonra önce **"Hey Car"** diyerek asistanı aktive edin, ardından komutunuzu verin:
+Asistanı aktive etmek için önce **"Hey Car"** de, ardından komutunu ver.
 
-| Komut | Açıklama |
-|---|---|
-| "Hey Car, hello" / "hi" / "greetings" | Asistanı selamlar |
-| "Hey Car, what time is it?" | Güncel saati sesli bildirir |
-| "Hey Car, what is today?" | Güncel tarihi sesli bildirir |
-| "Hey Car, turn on headlights" / "headlights on" | Far LED'ini (Pin 12) açar |
-| "Hey Car, turn off headlights" / "headlights off" | Far LED'ini (Pin 12) kapatır |
-| "Hey Car, turn on left blinker" / "left blinker on" | Sol sinyal LED'ini (Pin 11) açar |
-| "Hey Car, turn off left blinker" / "left blinker off" | Sol sinyal LED'ini (Pin 11) kapatır |
-| "Hey Car, turn on right blinker" / "right blinker on" | Sağ sinyal LED'ini (Pin 13) açar |
-| "Hey Car, turn off right blinker" / "right blinker off" | Sağ sinyal LED'ini (Pin 13) kapatır |
-| "Hey Car, shut down" / "goodbye" / "exit" | Programdan güvenli çıkış yapar |
+| Komut | İşlev |
+|-------|-------|
+| `hello` / `hi` / `greetings` | Selamlama |
+| `what time is it` | Saati söyler |
+| `what is today` | Tarihi söyler |
+| `turn on headlights` | Farları açar (Pin 12) |
+| `turn off headlights` | Farları kapatır |
+| `turn on left blinker` | Sol sinyali açar (Pin 11) |
+| `turn off left blinker` | Sol sinyali kapatır |
+| `turn on right blinker` | Sağ sinyali açar (Pin 13) |
+| `turn off right blinker` | Sağ sinyali kapatır |
+| `shut down` / `goodbye` / `exit` | Programdan çıkar |
 
-> **Not:** Tüm komut anahtar kelimeleri ve sistem yanıtları `komutlar.json` dosyasından yönetilmektedir.
-
----
-
-## 📁 Dosya Yapısı
-
-```
-├── main.py            # Ana Python asistan uygulaması
-├── komutlar.json      # Sesli komut anahtarları ve sistem cevapları
-├── main.ino           # Arduino LED kontrol kodları
-├── benim_sesim.wav    # XTTS v2 için ses klonu referans dosyası
-├── xtts_v2_local/     # İndirilen Coqui XTTS v2 model dosyaları
-└── requirements.txt   # Gerekli Python kütüphaneleri listesi
-```
+Yeni komut eklemek için `komutlar.json` dosyasını düzenle.
 
 ---
 
-## 📄 License
+## Dosya Yapısı
 
-This project is licensed under a **Non-Commercial License**.
+```
+├── main.py            # Ana uygulama
+├── main.ino           # Arduino LED kontrol kodu
+├── komutlar.json      # Komut tanımları ve yanıtlar
+├── requirements.txt   # Python bağımlılıkları
+├── benim_sesim.wav    # Ses klonu referans dosyası (kendin ekle)
+└── xtts_v2_local/     # XTTS v2 model dosyaları (kendin indir)
+```
 
-You may use, modify, and share this project for **personal, educational, and non-commercial purposes only**.
+---
 
-🚫 **Commercial use is strictly prohibited** without prior written permission from the author.
+## Lisans
 
-For commercial licensing inquiries, please contact the author.
-See the LICENSE file for full details.
+**Non-Commercial License** — Kişisel ve eğitim amaçlı kullanım serbesttir.  
+Ticari kullanım yazılı izin gerektirmektedir.
