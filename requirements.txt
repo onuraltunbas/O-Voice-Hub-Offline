@@ -1,4 +1,8 @@
-pyttsx3
-pyserial
+coqui-tts
 SpeechRecognition
+sounddevice
+pygame
+pyserial
+python-dotenv
 openai-whisper
+huggingface_hub

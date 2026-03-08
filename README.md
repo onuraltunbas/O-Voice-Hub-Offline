@@ -27,8 +27,7 @@ sudo apt install portaudio19-dev python3-pyaudio ffmpeg -y
 ### 2. Python kütüphaneleri
 
 ```bash
-pip install coqui-tts SpeechRecognition sounddevice pygame pyserial
-pip install openai-whisper
+pip install -r requirements.txt
 ```
 
 ### 3. XTTS v2 modelini indir
@@ -36,7 +35,6 @@ pip install openai-whisper
 (internet bağlantısı gerekir, ~2GB — yalnızca bir kez yapılır):
 
 ```bash
-pip install huggingface_hub
 python3 download_model.py
 ```
 
