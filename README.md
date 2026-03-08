@@ -33,15 +33,11 @@ pip install openai-whisper
 
 ### 3. XTTS v2 modelini indir
 
-Aşağıdaki betiği bir kez çalıştır (internet bağlantısı gerekir, ~2GB):
+(internet bağlantısı gerekir, ~2GB — yalnızca bir kez yapılır):
 
-```python
-from huggingface_hub import snapshot_download
-snapshot_download(
-    repo_id="coqui/XTTS-v2",
-    local_dir="xtts_v2_local",
-    local_dir_use_symlinks=False
-)
+```bash
+pip install huggingface_hub
+python3 download_model.py
 ```
 
 > İndirme tamamlandıktan sonra sistem tamamen çevrimdışı çalışır.
@@ -110,6 +106,7 @@ Yeni komut eklemek için `komutlar.json` dosyasını düzenle.
 ├── main.py            # Ana uygulama
 ├── main.ino           # Arduino LED kontrol kodu
 ├── komutlar.json      # Komut tanımları ve yanıtlar
+├── download_model.py  # XTTS v2 model indirme betiği
 ├── requirements.txt   # Python bağımlılıkları
 ├── benim_sesim.wav    # Ses klonu referans dosyası (kendin ekle)
 └── xtts_v2_local/     # XTTS v2 model dosyaları (kendin indir)
