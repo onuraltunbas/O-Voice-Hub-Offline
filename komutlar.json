@@ -1,16 +1,5 @@
 {
-    "selam": {
-      "anahtarlar": ["hello", "hi", "greetings"],
-      "cevap": ["Hello. How can I assist you?", "Hi there! What can I do for you?", "Hey! Need any help?"]
-    },
-    "zaman": {
-      "anahtarlar": ["time", "what time is it", "current time", "what is the time"],
-      "cevap": ["The current time is {saat}", "{saat}", "It is {saat}"]
-    },
-    "tarih": {
-      "anahtarlar": ["date", "what is today", "what day is it", "today's date"],
-      "cevap": ["Today is {tarih}"]
-    },
+    
     "led_1_ac": {
       "anahtarlar": ["turn on left blinker", "left blinker on"],
       "cevap": ["Left blinker activated.", "Left blinker is on."]
