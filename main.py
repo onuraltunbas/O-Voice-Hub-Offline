@@ -54,7 +54,7 @@ model.to(device)
 print(f"Voice model activated on {device.upper()}!")
 
 print("Analyzing voice clone (benim_sesim.wav)...")
-gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(audio_path=["benim_sesim.wav"])
+gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(audio_path=["jarvis.wav"])
 print("Voice systems fully operational!")
 
 
@@ -148,7 +148,7 @@ def asistan_calistir():
     else:
         komutlar = {}
 
-    konus("Welcome sir.")
+    konus("welcome home, sir. How can I assist you today?")
 
     while True:
         try:
