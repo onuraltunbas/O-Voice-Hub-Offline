@@ -9,7 +9,6 @@ import serial
 import time
 import speech_recognition as sr
 import warnings
-from datetime import datetime
 from ctypes import *
 
 # --- XTTS v2 (COQUI) KÜTÜPHANELERİ ---
@@ -43,20 +42,17 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 # --- YAPAY ZEKA SES MOTORUNU (XTTS v2) BAŞLAT ---
 os.environ["COQUI_TOS_AGREED"] = "1"
-print("Initializing local AI Voice (XTTS v2)... This might take a few seconds.")
+print("Initializing local AI Voice (XTTS v2)...")
 
-# Konfigürasyonu ve modeli yükle
 config = XttsConfig()
 config.load_json("xtts_v2_local/config.json")
 model = Xtts.init_from_config(config)
 model.load_checkpoint(config, checkpoint_dir="xtts_v2_local", eval=True)
 
-# Ekran kartı (GPU) kontrolü ve taşıma
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 print(f"Voice model activated on {device.upper()}!")
 
-# Referans sesi analiz et (Bunu her kelimede yapmamak için başta bir kere yapıyoruz)
 print("Analyzing voice clone (benim_sesim.wav)...")
 gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(audio_path=["benim_sesim.wav"])
 print("Voice systems fully operational!")
@@ -75,19 +71,17 @@ except Exception as e:
 def konus(metin):
     print("Assistant:", metin)
     
-    # XTTS ile sesi üret
     out = model.inference(
         text=metin,
-        language="en", # İngilizce konuşması için 'en' yapıldı ('tr' yapılabilir)
+        language="en", 
         gpt_cond_latent=gpt_cond_latent,
         speaker_embedding=speaker_embedding,
         temperature=0.7,
     )
     
-    # Doğrudan hoparlörden çal
     audio_data = np.array(out["wav"])
     sd.play(audio_data, samplerate=24000)
-    sd.wait() # Sesin bitmesini bekle
+    sd.wait() 
 
 def dinle():
     r = sr.Recognizer()
@@ -98,7 +92,6 @@ def dinle():
             audio = r.listen(source, timeout=5, phrase_time_limit=5) 
             print("Processing audio...")
             
-            # Whisper'ı da İngilizce'ye kilitlemek istersen language="english" ekleyebilirsin
             metin = r.recognize_whisper(audio, model="base", language="en")
             
             print(f"You said: {metin}")
@@ -119,7 +112,7 @@ def cevapla(komut, komutlar):
         for anahtar in veri.get("anahtarlar", []):
             if anahtar in komut:
                 
-                # Arduino Komutları
+                # --- DONANIM KONTROLLERİ ---
                 if kategori == "led_1_ac":
                     if arduino: arduino.write(b'1')
                     else: return "No hardware connection."
@@ -144,11 +137,6 @@ def cevapla(komut, komutlar):
 
                 
                 cevap = random.choice(veri["cevap"]) if isinstance(veri["cevap"], list) else veri["cevap"]
-                
-                # --- SAAT VE TARİH HESAPLAMA ---
-                cevap = cevap.replace("{saat}", datetime.now().strftime("%H:%M"))
-                cevap = cevap.replace("{tarih}", datetime.now().strftime("%d %B %Y"))
-                
                 return cevap
 
     return ""
@@ -160,7 +148,7 @@ def asistan_calistir():
     else:
         komutlar = {}
 
-    konus("Systems are active.")
+    konus("Welcome sir.")
 
     while True:
         try:
@@ -169,11 +157,12 @@ def asistan_calistir():
             if not komut: 
                 continue 
 
+            # UYANDIRMA KİLİDİ
             if "hey car" not in komut:
                 continue
             
             if any(x in komut for x in ["shut down", "goodbye", "exit"]):
-                konus("Goodbye, shutting down systems.")
+                konus("Goodbye.")
                 break
             
             yanit = cevapla(komut, komutlar)
