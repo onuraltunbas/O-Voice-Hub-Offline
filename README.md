@@ -1,19 +1,8 @@
-# O-Voice-Hub-Offline
+# O-Voice-Hub-Offline: The Viya Edition
 
-Tamamen çevrimdışı çalışan, ses klonlama ve Arduino donanım kontrolü destekli yapay zeka sesli asistan.
 
 **Ses Tanıma:** OpenAI Whisper (base) — **TTS:** Coqui XTTS v2 — **Donanım:** Arduino (Seri Port)
 
----
-
-## Gereksinimler
-
-- Ubuntu / Debian tabanlı Linux
-- Python 3.10+
-- Arduino (isteğe bağlı)
-- GPU önerilir (CPU ile de çalışır)
-
----
 
 ## Kurulum
 
@@ -32,13 +21,10 @@ pip install -r requirements.txt
 
 ### 3. XTTS v2 modelini indir
 
-(internet bağlantısı gerekir, ~2GB — yalnızca bir kez yapılır):
-
 ```bash
 python3 download_model.py
 ```
 
-> İndirme tamamlandıktan sonra sistem tamamen çevrimdışı çalışır.
 
 ### 4. Ses klonu referans dosyası
 
@@ -59,7 +45,7 @@ Proje dizinine `benim_sesim.wav` adında **en az 6–10 saniyelik**, net ve gür
 
 ```bash
 sudo usermod -a -G dialout $USER
-# Ardından bilgisayarı yeniden başlat
+
 ```
 
 4. `main.py` içindeki `ARDUINO_PORT` değerini kendi portuna göre güncelle:
@@ -95,24 +81,3 @@ Asistanı aktive etmek için önce **"Hey Car"** de, ardından komutunu ver.
 | `shut down` / `goodbye` / `exit` | Programdan çıkar |
 
 Yeni komut eklemek için `komutlar.json` dosyasını düzenle.
-
----
-
-## Dosya Yapısı
-
-```
-├── main.py            # Ana uygulama
-├── main/main.ino      # Arduino LED kontrol kodu
-├── komutlar.json      # Komut tanımları ve yanıtlar
-├── download_model.py  # XTTS v2 model indirme betiği
-├── requirements.txt   # Python bağımlılıkları
-├── benim_sesim.wav    # Ses klonu referans dosyası (kendin ekle)
-└── xtts_v2_local/     # XTTS v2 model dosyaları (kendin indir)
-```
-
----
-
-## Lisans
-
-**Non-Commercial License** — Kişisel ve eğitim amaçlı kullanım serbesttir.  
-Ticari kullanım yazılı izin gerektirmektedir.
